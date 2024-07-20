@@ -27,7 +27,8 @@ public class SecurityConfiguration {
                          ,"/api/v1/main/property/searchHotel","/api/v1/main/property/delete/{propertyId}"
                 ,"/api/v1/main/review/addReview/{propertyId}","/api/v1/main/review/updateReview/{propertyId}"
                 ,"/api/v1/main/review/deleteReview/{reviewId}","/api/v1/main/review/getReviewByUser",
-                        "/api/v1/main/favourite/addFavourite/{propertyId}","/api/v1/main/favourite/removeFavourite/{propertyId}").hasRole("ADMIN").anyRequest().authenticated();
+                        "/api/v1/main/favourite/addFavourite/{propertyId}","/api/v1/main/favourite/removeFavourite/{propertyId}",
+                "/api/v1/main/image/upload/property/{propertyId}","/api/v1/main/image/delete/{imageId}").hasRole("ADMIN").anyRequest().authenticated();
         return http.build();
     }
 }
