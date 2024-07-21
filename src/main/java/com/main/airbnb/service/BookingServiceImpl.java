@@ -7,6 +7,7 @@ import com.main.airbnb.exception.PropertyNotFoundException;
 import com.main.airbnb.payload.BookingDto;
 import com.main.airbnb.repository.BookingRepository;
 import com.main.airbnb.repository.PropertyRepository;
+import com.main.airbnb.util.EmailService;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
@@ -17,10 +18,12 @@ public class BookingServiceImpl implements BookingService{
 
     private BookingRepository bookingRepository;
     private PropertyRepository propertyRepository;
+    private EmailService emailService;
 
-    public BookingServiceImpl(BookingRepository bookingRepository, PropertyRepository propertyRepository) {
+    public BookingServiceImpl(BookingRepository bookingRepository, PropertyRepository propertyRepository, EmailService emailService) {
         this.bookingRepository = bookingRepository;
         this.propertyRepository = propertyRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -31,6 +34,7 @@ public class BookingServiceImpl implements BookingService{
          Booking booking = bookingDtoToEntity(dto, property, user);
          Booking savedBooking = bookingRepository.save(booking);
          BookingDto bookingDto = bookingEntityToDto(savedBooking);
+         emailService.sendSimpleEmail(savedBooking.getEmail(),"Booking Confirmation Mail","Your booking is confirmed click here.....");
          return bookingDto;
     }
 
