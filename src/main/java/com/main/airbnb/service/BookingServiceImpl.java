@@ -1,8 +1,8 @@
 package com.main.airbnb.service;
-
 import com.main.airbnb.entity.Booking;
 import com.main.airbnb.entity.Property;
 import com.main.airbnb.entity.User;
+import com.main.airbnb.exception.BookingNotFoundException;
 import com.main.airbnb.exception.PropertyNotFoundException;
 import com.main.airbnb.payload.BookingDto;
 import com.main.airbnb.repository.BookingRepository;
@@ -13,9 +13,9 @@ import com.main.airbnb.util.SmsService;
 import com.main.airbnb.util.WhatsAppService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -58,6 +58,16 @@ public class BookingServiceImpl implements BookingService{
          return bookingDto;
     }
 
+    @Override
+    public String deleteBooking(String bookingId) {
+         Booking booking = bookingRepository.findById(bookingId).orElseThrow(
+                () -> new BookingNotFoundException("Booking for id " + bookingId + " not found")
+
+        );
+         String msg = s3Service.deleteImage(booking.getId() + "-confirmation.pdf");
+        return msg;
+    }
+
     private BookingDto bookingEntityToDto(Booking savedBooking) {
         BookingDto booking = new BookingDto();
         booking.setId(savedBooking.getId());
@@ -65,8 +75,9 @@ public class BookingServiceImpl implements BookingService{
         booking.setEmail(savedBooking.getEmail());
         booking.setPropertyName(savedBooking.getProperty().getPropertyName());
         booking.setGst(savedBooking.getGst());
-        DecimalFormat df = new DecimalFormat("#.00");
-        booking.setTotalPrice(Double.valueOf(df.format(savedBooking.getTotalPrice())));
+        BigDecimal totalPrice = BigDecimal.valueOf(savedBooking.getTotalPrice());
+        totalPrice = totalPrice.setScale(2, RoundingMode.HALF_UP);
+        booking.setTotalPrice(totalPrice.doubleValue());
         booking.setMobile(savedBooking.getMobile());
         booking.setNoOfNights(savedBooking.getNoOfNights());
         booking.setLocalDateTime(savedBooking.getDateTime());

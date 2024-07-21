@@ -33,7 +33,14 @@ public class BookingController {
         }
          BookingDto booking = bookingService.createBooking(dto, propertyId, user);
         return new ResponseEntity<>(booking,HttpStatus.CREATED);
+    }
 
+    @PostMapping("/delete/{bookingId}")
+    public ResponseEntity<?> deleteBooking(
+            @PathVariable String bookingId
 
+    ) {
+         String msg = bookingService.deleteBooking(bookingId);
+        return new ResponseEntity<>(msg,HttpStatus.CREATED);
     }
 }

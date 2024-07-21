@@ -39,7 +39,8 @@ public class SecurityConfiguration {
                                                                "/api/v1/main/review/getReviewByUser",
                                                                "/api/v1/main/favourite/addFavourite/{propertyId}",
                                                                "/api/v1/main/favourite/removeFavourite/{propertyId}",
-                                                               "/api/v1/main/booking/create/property/{propertyId}")
+                                                               "/api/v1/main/booking/create/property/{propertyId}",
+                                                                "/api/v1/main/booking/delete/{bookingId}")
                                     .hasAnyRole("ADMIN","USER").anyRequest().authenticated();
         return http.build();
     }

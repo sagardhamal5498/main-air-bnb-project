@@ -86,4 +86,13 @@ public class ExceptionHandling {
         exceptionDetails.setWebUrl(webRequest.getDescription(false));
         return new ResponseEntity<>(exceptionDetails, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(BookingNotFoundException.class)
+    public ResponseEntity<?> bookingNotFoundException(BookingNotFoundException ex, WebRequest webRequest){
+        ExceptionDetails exceptionDetails = new ExceptionDetails();
+        exceptionDetails.setMessage(ex.getMessage());
+        exceptionDetails.setDateTime(LocalDateTime.now());
+        exceptionDetails.setWebUrl(webRequest.getDescription(false));
+        return new ResponseEntity<>(exceptionDetails, HttpStatus.BAD_REQUEST);
+    }
 }
