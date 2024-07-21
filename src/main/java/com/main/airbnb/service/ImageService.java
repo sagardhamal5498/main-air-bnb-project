@@ -37,12 +37,6 @@ public class ImageService {
          return imageDto;
     }
 
-
-
-
-
-
-
     private ImageDto imageEntityToDto(Image savedImage) {
         ImageDto image = new ImageDto();
         image.setId(savedImage.getId());

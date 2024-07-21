@@ -8,11 +8,16 @@ import com.main.airbnb.payload.BookingDto;
 import com.main.airbnb.repository.BookingRepository;
 import com.main.airbnb.repository.PropertyRepository;
 import com.main.airbnb.util.EmailService;
+import com.main.airbnb.util.PdfService;
 import com.main.airbnb.util.SmsService;
 import com.main.airbnb.util.WhatsAppService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -23,26 +28,33 @@ public class BookingServiceImpl implements BookingService{
     private EmailService emailService;
     private SmsService smsService;
     private WhatsAppService whatsAppService;
+    private PdfService pdfService;
+    private S3Service s3Service;
 
-    public BookingServiceImpl(BookingRepository bookingRepository, PropertyRepository propertyRepository, EmailService emailService, SmsService smsService, WhatsAppService whatsAppService) {
+    public BookingServiceImpl(BookingRepository bookingRepository, PropertyRepository propertyRepository, EmailService emailService, SmsService smsService, WhatsAppService whatsAppService, PdfService pdfService, S3Service s3Service) {
         this.bookingRepository = bookingRepository;
         this.propertyRepository = propertyRepository;
         this.emailService = emailService;
         this.smsService = smsService;
         this.whatsAppService = whatsAppService;
+        this.pdfService = pdfService;
+        this.s3Service = s3Service;
     }
 
     @Override
-    public BookingDto createBooking(BookingDto dto, String propertyId, User user) {
+    public BookingDto createBooking(BookingDto dto, String propertyId, User user) throws IOException {
          Property property = propertyRepository.findById(propertyId).orElseThrow(
                 () -> new PropertyNotFoundException("Property Not Found")
         );
          Booking booking = bookingDtoToEntity(dto, property, user);
          Booking savedBooking = bookingRepository.save(booking);
          BookingDto bookingDto = bookingEntityToDto(savedBooking);
-         emailService.sendSimpleEmail(savedBooking.getEmail(),"Booking Confirmation Mail","Your booking is confirmed click here.....");
-         smsService.sendSms(savedBooking.getMobile(),"Your booking is confirmed click here.....");
-         whatsAppService.sendWhatsappMessage(savedBooking.getMobile(),"Your booking is confirmed click here.....");
+         pdfService.generatePdf(savedBooking,"D:\\Actual Main Project\\main-airbnb\\tickets\\"+savedBooking.getId()+"-confirmation.pdf");
+         MultipartFile multipartFile = pdfService.convertFileToMultipartFile("D:\\Actual Main Project\\main-airbnb\\tickets\\" + savedBooking.getId() + "-confirmation.pdf");
+         String pdfUrl = s3Service.uploadFile(multipartFile);
+        emailService.sendSimpleEmail(savedBooking.getEmail(),"Booking Confirmation Mail","Your booking is confirmed click here....." + pdfUrl);
+         smsService.sendSms(savedBooking.getMobile(),"Your booking is confirmed click here....." + pdfUrl);
+         whatsAppService.sendWhatsappMessage(savedBooking.getMobile(),"Your booking is confirmed click here....." + pdfUrl);
          return bookingDto;
     }
 
@@ -57,6 +69,7 @@ public class BookingServiceImpl implements BookingService{
         booking.setTotalPrice(Double.valueOf(df.format(savedBooking.getTotalPrice())));
         booking.setMobile(savedBooking.getMobile());
         booking.setNoOfNights(savedBooking.getNoOfNights());
+        booking.setLocalDateTime(savedBooking.getDateTime());
         return booking;
     }
 
@@ -73,6 +86,7 @@ public class BookingServiceImpl implements BookingService{
          booking.setProperty(property);
          booking.setMobile(dto.getMobile());
          booking.setNoOfNights(dto.getNoOfNights());
+         booking.setDateTime(LocalDateTime.now());
          return booking;
 
 

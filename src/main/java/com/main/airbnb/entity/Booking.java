@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -46,6 +47,7 @@ public class Booking {
     @JoinColumn(name = "property_id")
     private Property property;
 
-
+    @Column(name = "date_time")
+    private LocalDateTime dateTime;
 
 }

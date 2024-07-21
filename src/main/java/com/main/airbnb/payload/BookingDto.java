@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 
 
 @Data
@@ -36,6 +37,7 @@ public class BookingDto {
 
     private Double totalPrice;
 
+    private LocalDateTime localDateTime;
 
 
 

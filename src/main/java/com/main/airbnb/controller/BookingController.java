@@ -9,6 +9,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/v1/main/booking")
 public class BookingController {
@@ -25,7 +27,7 @@ public class BookingController {
              @PathVariable String propertyId,
              @AuthenticationPrincipal User user,
              BindingResult result
-    ){
+    ) throws IOException {
         if(result.hasErrors()){
         return new ResponseEntity<>(result.getFieldError().getDefaultMessage(), HttpStatus.BAD_REQUEST);
         }
