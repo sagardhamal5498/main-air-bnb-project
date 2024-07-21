@@ -1,0 +1,37 @@
+package com.main.airbnb.controller;
+import com.main.airbnb.entity.*;
+import com.main.airbnb.payload.BookingDto;
+import com.main.airbnb.service.BookingService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/main/booking")
+public class BookingController {
+
+    private BookingService bookingService;
+
+    public BookingController(BookingService bookingService) {
+        this.bookingService = bookingService;
+    }
+
+    @PostMapping("/create/property/{propertyId}")
+     public ResponseEntity<?> createBooking(
+            @Valid @RequestBody BookingDto dto,
+             @PathVariable String propertyId,
+             @AuthenticationPrincipal User user,
+             BindingResult result
+    ){
+        if(result.hasErrors()){
+        return new ResponseEntity<>(result.getFieldError().getDefaultMessage(), HttpStatus.BAD_REQUEST);
+        }
+         BookingDto booking = bookingService.createBooking(dto, propertyId, user);
+        return new ResponseEntity<>(booking,HttpStatus.CREATED);
+
+
+    }
+}
