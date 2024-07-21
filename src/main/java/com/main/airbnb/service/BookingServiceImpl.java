@@ -8,6 +8,8 @@ import com.main.airbnb.payload.BookingDto;
 import com.main.airbnb.repository.BookingRepository;
 import com.main.airbnb.repository.PropertyRepository;
 import com.main.airbnb.util.EmailService;
+import com.main.airbnb.util.SmsService;
+import com.main.airbnb.util.WhatsAppService;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
@@ -19,11 +21,15 @@ public class BookingServiceImpl implements BookingService{
     private BookingRepository bookingRepository;
     private PropertyRepository propertyRepository;
     private EmailService emailService;
+    private SmsService smsService;
+    private WhatsAppService whatsAppService;
 
-    public BookingServiceImpl(BookingRepository bookingRepository, PropertyRepository propertyRepository, EmailService emailService) {
+    public BookingServiceImpl(BookingRepository bookingRepository, PropertyRepository propertyRepository, EmailService emailService, SmsService smsService, WhatsAppService whatsAppService) {
         this.bookingRepository = bookingRepository;
         this.propertyRepository = propertyRepository;
         this.emailService = emailService;
+        this.smsService = smsService;
+        this.whatsAppService = whatsAppService;
     }
 
     @Override
@@ -35,11 +41,13 @@ public class BookingServiceImpl implements BookingService{
          Booking savedBooking = bookingRepository.save(booking);
          BookingDto bookingDto = bookingEntityToDto(savedBooking);
          emailService.sendSimpleEmail(savedBooking.getEmail(),"Booking Confirmation Mail","Your booking is confirmed click here.....");
+         smsService.sendSms(savedBooking.getMobile(),"Your booking is confirmed click here.....");
+         whatsAppService.sendWhatsappMessage(savedBooking.getMobile(),"Your booking is confirmed click here.....");
          return bookingDto;
     }
 
     private BookingDto bookingEntityToDto(Booking savedBooking) {
-         BookingDto booking = new BookingDto();
+        BookingDto booking = new BookingDto();
         booking.setId(savedBooking.getId());
         booking.setName(savedBooking.getName());
         booking.setEmail(savedBooking.getEmail());
