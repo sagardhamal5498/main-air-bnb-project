@@ -18,18 +18,29 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable().cors().disable();
         http.addFilterBefore(jwtRequestMapper, UsernamePasswordAuthenticationFilter.class);
-        http.authorizeHttpRequests().requestMatchers("/api/v1/main/user/signUp","/api/v1/main/user/login").permitAll()
-                .requestMatchers("/api/v1/main/country/addCountry","/api/v1/main/country/updCountry/{countryId}",
-                "/api/v1/main/country/remove/{countryId}","/api/v1/main/country/search"
-                ,"/api/v1/main/location/addLocation","/api/v1/main/location/updLocation/{locationId}",
-                        "/api/v1/main/location/remove/{locationId}","/api/v1/main/location/search",
-                        "/api/v1/main/property/addProperty","/api/v1/main/property/updProperty/{propertyId}"
-                         ,"/api/v1/main/property/searchHotel","/api/v1/main/property/delete/{propertyId}"
-                ,"/api/v1/main/review/addReview/{propertyId}","/api/v1/main/review/updateReview/{propertyId}"
-                ,"/api/v1/main/review/deleteReview/{reviewId}","/api/v1/main/review/getReviewByUser",
-                        "/api/v1/main/favourite/addFavourite/{propertyId}","/api/v1/main/favourite/removeFavourite/{propertyId}",
-                "/api/v1/main/image/upload/property/{propertyId}","/api/v1/main/image/delete/{imageId}",
-                "/api/v1/main/booking/create/property/{propertyId}" ).hasRole("ADMIN").anyRequest().authenticated();
+        http.authorizeHttpRequests().requestMatchers("/api/v1/main/user/signUp",
+                                                               "/api/v1/main/user/login").permitAll()
+                                    .requestMatchers("/api/v1/main/country/addCountry",
+                                                               "/api/v1/main/country/updCountry/{countryId}",
+                                                               "/api/v1/main/country/remove/{countryId}",
+                                                               "/api/v1/main/country/search",
+                                                               "/api/v1/main/location/addLocation",
+                                                               "/api/v1/main/location/updLocation/{locationId}",
+                                                               "/api/v1/main/property/addProperty",
+                                                               "/api/v1/main/property/delete/{propertyId}",
+                                                               "/api/v1/main/image/upload/property/{propertyId}",
+                                                               "/api/v1/main/image/delete/{imageId}")
+                                    .hasRole("ADMIN")
+                                    .requestMatchers("/api/v1/main/property/updProperty/{propertyId}",
+                                                               "/api/v1/main/property/searchHotel",
+                                                               "/api/v1/main/review/addReview/{propertyId}",
+                                                               "/api/v1/main/review/updateReview/{propertyId}",
+                                                               "/api/v1/main/review/deleteReview/{reviewId}",
+                                                               "/api/v1/main/review/getReviewByUser",
+                                                               "/api/v1/main/favourite/addFavourite/{propertyId}",
+                                                               "/api/v1/main/favourite/removeFavourite/{propertyId}",
+                                                               "/api/v1/main/booking/create/property/{propertyId}")
+                                    .hasAnyRole("ADMIN","USER").anyRequest().authenticated();
         return http.build();
     }
 }
