@@ -65,6 +65,7 @@ public class BookingServiceImpl implements BookingService{
 
         );
          String msg = s3Service.deleteImage(booking.getId() + "-confirmation.pdf");
+         bookingRepository.deleteById(booking.getId());
         return msg;
     }
 
