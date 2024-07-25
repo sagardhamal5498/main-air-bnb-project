@@ -1,13 +1,9 @@
 package com.main.airbnb.payload;
-
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-
-import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 
 
@@ -34,6 +30,8 @@ public class BookingDto {
     private String propertyName;
 
     private Double gst;
+
+    private int noOfRooms;
 
     private Double totalPrice;
 

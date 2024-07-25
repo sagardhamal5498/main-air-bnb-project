@@ -38,4 +38,7 @@ public class Property {
     @Column(name = "no_of_guests", nullable = false)
     private Integer noOfGuests;
 
+    @Column(name = "available_rooms")
+    private Integer availableRooms;
+
 }

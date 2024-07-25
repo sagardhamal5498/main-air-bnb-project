@@ -4,6 +4,7 @@ import com.main.airbnb.entity.Property;
 import com.main.airbnb.entity.User;
 import com.main.airbnb.exception.BookingNotFoundException;
 import com.main.airbnb.exception.PropertyNotFoundException;
+import com.main.airbnb.exception.RoomsAreNotAvailable;
 import com.main.airbnb.payload.BookingDto;
 import com.main.airbnb.repository.BookingRepository;
 import com.main.airbnb.repository.PropertyRepository;
@@ -65,6 +66,7 @@ public class BookingServiceImpl implements BookingService{
 
         );
          String msg = s3Service.deleteImage(booking.getId() + "-confirmation.pdf");
+         bookingRepository.deleteById(booking.getId());
         return msg;
     }
 
@@ -80,26 +82,53 @@ public class BookingServiceImpl implements BookingService{
         booking.setTotalPrice(totalPrice.doubleValue());
         booking.setMobile(savedBooking.getMobile());
         booking.setNoOfNights(savedBooking.getNoOfNights());
+        booking.setNoOfRooms(savedBooking.getNoOfRooms());
         booking.setLocalDateTime(savedBooking.getDateTime());
         return booking;
     }
 
     private Booking bookingDtoToEntity(BookingDto dto, Property property, User user) {
-         Booking booking = new Booking();
-         booking.setId(UUID.randomUUID().toString());
-         booking.setName(dto.getName());
-         booking.setEmail(dto.getEmail());
-         booking.setUser(user);
-         Double price = dto.getNoOfNights()*property.getPrice();
-         Double gst = price * 0.18;
-         booking.setGst(gst);
-         booking.setTotalPrice(gst+price);
-         booking.setProperty(property);
-         booking.setMobile(dto.getMobile());
-         booking.setNoOfNights(dto.getNoOfNights());
-         booking.setDateTime(LocalDateTime.now());
-         return booking;
+        if (property.getAvailableRooms() == 0) {
+            throw new RoomsAreNotAvailable("Rooms Not Available");
+        }
+        Booking booking = null;
+        if (property.getAvailableRooms() >= dto.getNoOfRooms()) {
+           property.setAvailableRooms(property.getAvailableRooms() - dto.getNoOfRooms());
+             booking = new Booking();
+             booking.setNoOfRooms(dto.getNoOfRooms());
+            booking.setId(UUID.randomUUID().toString());
+            booking.setName(dto.getName());
+            booking.setEmail(dto.getEmail());
+            booking.setUser(user);
+            Double price = dto.getNoOfNights() * property.getPrice() * dto.getNoOfRooms();
+            Double gst = price * 0.18;
+            booking.setGst(gst);
+            booking.setTotalPrice(gst + price);
+            booking.setProperty(property);
+            booking.setMobile(dto.getMobile());
+            booking.setNoOfNights(dto.getNoOfNights());
+            booking.setDateTime(LocalDateTime.now());
 
+        } else if (property.getAvailableRooms() <= dto.getNoOfRooms()) {
+            System.out.println("this much rooms are available "+ property.getAvailableRooms()+ " are available.");
+            int roomBooked = property.getAvailableRooms();
+            property.setAvailableRooms(0);
+            booking = new Booking();
+            booking.setNoOfRooms(roomBooked);
+            booking.setId(UUID.randomUUID().toString());
+            booking.setName(dto.getName());
+            booking.setEmail(dto.getEmail());
+            booking.setUser(user);
+            Double price = dto.getNoOfNights() * property.getPrice() * roomBooked;
+            Double gst = price * 0.18;
+            booking.setGst(gst);
+            booking.setTotalPrice(gst + price);
+            booking.setProperty(property);
+            booking.setMobile(dto.getMobile());
+            booking.setNoOfNights(dto.getNoOfNights());
+            booking.setDateTime(LocalDateTime.now());
+        }
+        return booking;
 
     }
 }

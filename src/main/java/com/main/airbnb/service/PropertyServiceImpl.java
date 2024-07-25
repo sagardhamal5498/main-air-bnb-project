@@ -87,11 +87,13 @@ public class PropertyServiceImpl implements PropertyService{
          Property property = new Property();
          String propertyId = UUID.randomUUID().toString();
          property.setId(propertyId);
+         property.setAvailableRooms(dto.getNoOfBedrooms());
          property.setPropertyName(dto.getPropertyName());
          property.setDescription(dto.getDescription());
          property.setNoOfBedrooms(dto.getNoOfBedrooms());
          property.setNoOfGuests(dto.getNoOfGuests());
          property.setPrice(dto.getPrice());
+         property.setAvailableRooms(dto.getNoOfBedrooms());
          Location location = locationRepository.findById(dto.getLocationId()).orElseThrow(
                 () -> new LocationNotFoundException("Location is not found for " + dto.getLocationId() + ".")
         );

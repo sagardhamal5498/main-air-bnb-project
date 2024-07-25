@@ -50,4 +50,6 @@ public class Booking {
     @Column(name = "date_time")
     private LocalDateTime dateTime;
 
+    private int noOfRooms;
+
 }
